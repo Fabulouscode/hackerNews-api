@@ -19,4 +19,11 @@ constructor(private readonly hackerNewsService: HackerNewsService) {}
         const topWords = findTopWords(titles);
         return topWords;
     }
+
+@Get('top-words-high-karma-users')
+    async getTopWordsHighKarmaUsers(): Promise<string[]> {
+        const titles = await this.hackerNewsService.getLast600StoryTitlesForHighKarmaUsers();
+        const topWords = findTopWords(titles);
+        return topWords;
+    }
 }
