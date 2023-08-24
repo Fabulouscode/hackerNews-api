@@ -1,29 +1,29 @@
 import { Controller, Get } from '@nestjs/common';
-import { HackerNewsService } from './hacker-news/hacker-news.service';
-import { findTopWords } from './utils';
+import { HackerNewsService } from '../hacker-news/hacker-news.service';
+import { findTopWords } from '../utils';
 
 @Controller('stories')
 export class StoriesController {
 constructor(private readonly hackerNewsService: HackerNewsService) {}
 
-@Get('top-words')
+    private async getTopWordsByServiceMethod(serviceMethod: () => Promise<string[]>): Promise<string[]> {
+        const titles = await serviceMethod();
+        const topWords = findTopWords(titles);
+        return topWords;
+    }
+
+    @Get('top-words')
     async getTopWords(): Promise<string[]> {
-        const titles = await this.hackerNewsService.getLast25StoryTitles();
-        const topWords = findTopWords(titles);
-        return topWords;
+        return this.getTopWordsByServiceMethod(() => this.hackerNewsService.getLast25StoryTitles());
     }
 
-@Get('top-words-last-week')
+    @Get('top-words-last-week')
     async getTopWordsLastWeek(): Promise<string[]> {
-        const titles = await this.hackerNewsService.getLastWeekStoryTitles();
-        const topWords = findTopWords(titles);
-        return topWords;
+        return this.getTopWordsByServiceMethod(() => this.hackerNewsService.getLastWeekStoryTitles());
     }
 
-@Get('top-words-high-karma-users')
+    @Get('top-words-high-karma-users')
     async getTopWordsHighKarmaUsers(): Promise<string[]> {
-        const titles = await this.hackerNewsService.getLast600StoryTitlesForHighKarmaUsers();
-        const topWords = findTopWords(titles);
-        return topWords;
+        return this.getTopWordsByServiceMethod(() => this.hackerNewsService.getLast600StoryTitlesForHighKarmaUsers());
     }
 }
