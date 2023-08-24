@@ -3,23 +3,23 @@ import axios from 'axios';
 
 @Injectable()
 export class HackerNewsService {
-  async getLast25StoryTitles(): Promise<string[]> {
-    const response = await axios.get<number[]>(
-      'https://hacker-news.firebaseio.com/v0/newstories.json'
-    );
+    async getLast25StoryTitles(): Promise<string[]> {
+        const response = await axios.get<number[]>(
+            'https://hacker-news.firebaseio.com/v0/newstories.json'
+        );
     
     const storyIds = response.data.slice(0, 25);
     const storyPromises = storyIds.map(id =>
-      axios.get(`https://hacker-news.firebaseio.com/v0/item/${id}.json`)
+        axios.get(`https://hacker-news.firebaseio.com/v0/item/${id}.json`)
     );
     const stories = await Promise.all(storyPromises);
     
     return stories.map(story => story.data.title);
-  }
+    }
 
-  async getLastWeekStoryTitles(): Promise<string[]> {
+    async getLastWeekStoryTitles(): Promise<string[]> {
     const response = await axios.get<number[]>(
-      'https://hacker-news.firebaseio.com/v0/newstories.json'
+        'https://hacker-news.firebaseio.com/v0/newstories.json'
     );
     const storyIds = response.data.slice(0, 25);
     
@@ -30,39 +30,39 @@ export class HackerNewsService {
     const lastWeek = Date.now() - 7 * 24 * 60 * 60 * 1000;
     const filteredStories = stories
       .filter(story => story.data.time * 1000 >= lastWeek)
-      .map(story => story.data.title);
-      
+        .map(story => story.data.title);
+    
     return filteredStories;
-  }
+    }
 
-  async getLast600StoryTitlesForHighKarmaUsers(): Promise<string[]> {
+    async getLast600StoryTitlesForHighKarmaUsers(): Promise<string[]> {
     const response = await axios.get<number[]>(
-      'https://hacker-news.firebaseio.com/v0/topstories.json'
+        'https://hacker-news.firebaseio.com/v0/topstories.json'
     );
     const storyIds = response.data.slice(0, 600);
-  
+
     const storyPromises = storyIds.map(id =>
-      axios.get(`https://hacker-news.firebaseio.com/v0/item/${id}.json`)
+        axios.get(`https://hacker-news.firebaseio.com/v0/item/${id}.json`)
     );
     const stories = await Promise.all(storyPromises);
-  
+
     const userIds = stories
-      .map(story => story.data.by)
-      .filter((value, index, self) => self.indexOf(value) === index);
-  
+        .map(story => story.data.by)
+        .filter((value, index, self) => self.indexOf(value) === index);
+
     const userPromises = userIds.map(userId =>
-      axios.get(`https://hacker-news.firebaseio.com/v0/user/${userId}.json`)
+        axios.get(`https://hacker-news.firebaseio.com/v0/user/${userId}.json`)
     );
     const users = await Promise.all(userPromises);
-  
+
     const highKarmaUsers = users
-      .filter(user => user.data.karma >= 10000)
-      .map(user => user.data.id);
-  
+        .filter(user => user.data.karma >= 10000)
+        .map(user => user.data.id);
+
     const filteredStories = stories
-      .filter(story => highKarmaUsers.includes(story.data.by))
-      .map(story => story.data.title);
-  
+        .filter(story => highKarmaUsers.includes(story.data.by))
+        .map(story => story.data.title);
+
     return filteredStories;
-  }
+    }
 }
